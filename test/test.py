@@ -19,24 +19,32 @@ soup = BeautifulSoup(html, "html.parser")
 xsrf=soup.find('input',{'name':'_xsrf'})['value']
 
 def getchap():
-    checkcodeurl = 'http://www.zhihu.com/'+str(int(time.time()*1000))+'/captcha.gif'
+    tm=str(int(time.time()*1000))
+    checkcodeurl = 'http://www.zhihu.com/captcha.gif'
+    print (checkcodeurl)
     checkcode = session.get(url=checkcodeurl, headers=headers).content
     with open('./checkcode.png', 'wb') as f:
         f.write(checkcode)
     print('已经打开验证码，请输入')
     os.startfile(r'checkcode.png')
-    checkcode = input('请输入验证码：')
+    charp = input('请输入验证码：')
     os.remove(r'checkcode.png')
-
+    return  charp
 phone_num='18516608583'
-password='123123123123'
-
-postdate={'phone_num':phone_num,
+password='112631spring'
+charp=getchap()
+print (charp)
+postdata={'phone_num':phone_num,
      'password':password,
     '_xsrf':xsrf,
-    'captcha_type':'en'
+    'captcha_type':'en',
+    'captcha': charp,
 }
-response=session.post(loginurl,headers=headers,data=postdate)
+response=session.post(loginurl,headers=headers,data=postdata)
 login_code=response.text
-#print(login_code)
-#getchap();
+print('服务器端返回响应码：', response.status_code)
+#print(response.json())
+tempurl = 'https://www.zhihu.com/question/57964452/answer/155231804'
+tempresponse = session.get(tempurl, headers=headers)
+soup = BeautifulSoup(tempresponse.text, 'html.parser')
+print(soup.title)
