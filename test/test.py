@@ -1,3 +1,5 @@
+import os
+import time
 import requests
 from bs4 import BeautifulSoup
 url='http://www.zhihu.com/login/email'
@@ -13,8 +15,18 @@ headers={
 loginurl = 'http://www.zhihu.com/login/email'
 session = requests.Session()
 html = session.get(url=loginurl, headers=headers).content
-soup = BeautifulSoup(html,'lxml')
+soup = BeautifulSoup(html, "html.parser")
 xsrf=soup.find('input',{'name':'_xsrf'})['value']
+
+def getchap():
+    checkcodeurl = 'http://www.zhihu.com/'+str(int(time.time()*1000))+'/captcha.gif'
+    checkcode = session.get(url=checkcodeurl, headers=headers).content
+    with open('./checkcode.png', 'wb') as f:
+        f.write(checkcode)
+    print('已经打开验证码，请输入')
+    os.startfile(r'checkcode.png')
+    checkcode = input('请输入验证码：')
+    os.remove(r'checkcode.png')
 
 phone_num='18516608583'
 password='123123123123'
@@ -24,6 +36,7 @@ postdate={'phone_num':phone_num,
     '_xsrf':xsrf,
     'captcha_type':'en'
 }
-login_page=session.post(loginurl,headers=headers,data=postdate)
-login_code=login_page.text
-print(login_page.msg) 
+response=session.post(loginurl,headers=headers,data=postdate)
+login_code=response.text
+#print(login_code)
+#getchap();
